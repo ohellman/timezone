@@ -266,6 +266,11 @@
     <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\CollectionModelDescription.cshtml" />
     <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\ApiGroup.cshtml" />
     <Content Include="Areas\HelpPage\Views\Help\Api.cshtml" />
+    <Content Include="DeployScripts\VSBuild.ps1" />
+    <Content Include="DeployScripts\InitiateReleaseFromBuild.ps1" />
+    <Content Include="DeployScripts\TrvIISReleaseModule.ps1" />
+    <Content Include="DeployScripts\TrvIISReleaseInstaller.ps1" />
+    <Content Include="DeployScripts\TrvIISReleaseExample.ps1" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
@@ -338,6 +343,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="DeployScripts\IIS\" />
     <Folder Include="Views\Time\" />
   </ItemGroup>
   <ItemGroup>
