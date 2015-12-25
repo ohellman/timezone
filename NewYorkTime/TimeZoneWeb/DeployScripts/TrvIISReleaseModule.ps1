@@ -10,20 +10,34 @@ function Delete-TrvSite($SiteName)
 	$SiteNameFull = "IIS:\Sites\$SiteName" 
 	if(Test-Path $SiteNameFull)
 	{
-		Remove-Item $SiteNameFull -recurse
-		Write-Verbose "Removed $SiteNameFull" -Verbose
+        Write-Verbose "Removing '$SiteNameFull'" -Verbose
+		Remove-Item $SiteNameFull -recurse		
 	}
 	else
 	{
-		Write-Verbose "Cannot remove site $SiteNameFull, it does not exist" -Verbose
+		Write-Verbose "Cannot remove site '$SiteNameFull', it does not exist" -Verbose
 	}
+}
+# Deletes all content in folder
+function Delete-TrvContent($folderPath)
+{
+    if(Test-Path $folderPath)
+    {
+	    Write-Verbose "Deleting all files and folders under '$folderPath'" -Verbose
+        Remove-Item (Join-Path $folderPath /*) -recurse
+    }
+    else
+    {
+        Write-Verbose "Cannot remove content under '$folderPath'. Folder not found." -Verbose
+    }
 }
 
 # Creates a site under \Sites\
-function Create-TrvSite($SiteName, $SitePath, $AppPoolName)
+function Create-TrvSite($SiteName, $SitePath, $AppPoolName, $portNr)
 {
-	$SiteNameFull = "\Sites\$SiteName"
-	New-Item IIS:$SiteNameFull -physicalPath $SitePath -bindings @{protocol="http";bindingInformation=":8080:"} -force
+	Write-Verbose "Creating Site '$SiteName' with path '$SitePath' AppPool '$AppPoolName' PortNr '$portNr'" -Verbose
+    $SiteNameFull = "\Sites\$SiteName"
+	New-Item IIS:$SiteNameFull -physicalPath $SitePath -bindings @{protocol="http";bindingInformation=":${portNr}:"} -force
 	Set-ItemProperty IIS:$SiteNameFull -name applicationPool -value $AppPoolName 
 }
 
@@ -33,9 +47,9 @@ function Create-TrvApplication($SiteName, $ApplicationName, $ApplicationPath, $A
 	$SiteNameFull = "\Sites\$SiteName"
 	$ApplicationNameFull = "$SiteNameFull\$ApplicationName"
 	
-	Write-Verbose "Create Application $ApplicationNameFull with path $ApplicationPath" -Verbose
+	Write-Verbose "Creating Application '$ApplicationNameFull' with path '$ApplicationPath'" -Verbose
 	New-Item IIS:$ApplicationNameFull -physicalPath $ApplicationPath -type Application
-	Write-Verbose "Create Application Pool $AppPoolName for application $ApplicationNameFull" -Verbose
+	Write-Verbose "Creating Application Pool '$AppPoolName' for application '$ApplicationNameFull'" -Verbose
 	Set-ItemProperty IIS:$ApplicationNameFull -name applicationPool -value $AppPoolName 
 }
 
@@ -50,7 +64,7 @@ function Create-TrvVirtualDirectory($SiteName, $ApplicationName, $VirtualDirecto
 	}
 	
 	$VirtualDirectoryNameFull = "$VirtualDirectoryNameFull\$VirtualDirectoryName" 
-	Write-Verbose "Creating $VirtualDirectoryNameFull with path $VirtualDirectoryPath" -Verbose
+	Write-Verbose "Creating '$VirtualDirectoryNameFull' with path '$VirtualDirectoryPath'" -Verbose
 	New-Item IIS:$VirtualDirectoryNameFull -physicalPath $VirtualDirectoryPath -type VirtualDirectory -force
 	
 }
@@ -60,14 +74,28 @@ function Create-TrvApplicationPool($AppPoolName)
     #check if the app pool exists
     if (!(Test-Path "IIS:\AppPools\$AppPoolName" -pathType container))
     {
+        Write-Verbose "Creating Application Pool '$AppPoolName'" -Verbose
         #create the app pool
         New-Item "IIS:\AppPools\$AppPoolName"
         #$appPool | Set-ItemProperty -Name "managedRuntimeVersion" -Value "v4.0"
-        Write-Verbose "Created Apppool '$AppPoolName'" -Verbose
+        
     }
     else
     {
-        Write-Verbose "Cannot create Appool '$AppPoolName' it already exists" -Verbose
+        Write-Verbose "Cannot create Application Pool '$AppPoolName' it already exists" -Verbose
+    }
+}
+# Remove Application Pool (IIS7+)
+function Delete-TrvApplicationPool($AppPoolName)
+{
+	if(Test-Path IIS:\AppPools\$AppPoolName)
+	{
+		Write-Verbose "Deleting '$AppPoolName'" -Verbose
+		Remove-Item IIS:\AppPools\$AppPoolName -Recurse
+	}
+    else
+    {
+        Write-Verbose "Did not find '$AppPoolName'" -Verbose
     }
 }
 # Recycle Application Pool if it exists
@@ -75,7 +103,7 @@ function Restart-TrvApplicationPool($AppPoolName)
 {
 	if(Test-Path IIS:\AppPools\$AppPoolName)
 	{
-		Write-Verbose "Restart $AppPoolName" -Verbose
+		Write-Verbose "Restarting '$AppPoolName'" -Verbose
 		Restart-WebAppPool $AppPoolName
 	}
     else
@@ -87,14 +115,20 @@ function Restart-TrvApplicationPool($AppPoolName)
 # Safely copy folder (no errors when folder not found)
 function Copy-TrvFolder($source, $target)
 {
+    if (!(Test-Path $target))
+    {
+		Write-Verbose "Could not find '$target'. Creating it" -Verbose
+        New-Item $target -type directory       
+    }
+    
     if (Test-Path $source)
     {
-		Write-Verbose "Copying files in $source to $target" -Verbose
+		Write-Verbose "Copying files in '$source' to '$target'" -Verbose
         Copy-Item $source $target -recurse -force
        
     }
     else
     {
-        Write-Verbose "Failed to move files, $source not found!" -Verbose
+        Write-Verbose "Failed to move files, '$source' not found!" -Verbose
     }
 }

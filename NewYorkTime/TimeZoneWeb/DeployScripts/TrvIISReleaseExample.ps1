@@ -4,7 +4,7 @@
 # The account running this script requires admin on the machine.
 # 
 # Custom Parameters
-Param ($SiteName, $SitePath, $AppPoolName, $ApplicationName, $ApplicationPath, $VirtualDirectoryName1, $VirtualDirectoryName2, $VirtualDirecotryPath1, $VirtualDirecotryPath2)
+Param ($SiteName, $SitePath, $AppPoolName, $PortNr)
 
 #Include File
 $folder = Split-Path -parent $MyInvocation.MyCommand.Definition
@@ -13,37 +13,34 @@ $folder = Split-Path -parent $MyInvocation.MyCommand.Definition
 # Script Root Parent
 $ScriptRootParent = (Get-Item $folder).parent.FullName
 
+$RoslynPath = Join-Path (Get-Item $ScriptRootParent).parent.parent.FullName /Roslyn
 # Begin PreRelease
 Write-Verbose "Starting PreRelease" -Verbose
 
-#Recycle The AppPool
-Restart-TrvApplicationPool $AppPoolName
+#Delete The AppPool
+Delete-TrvApplicationPool $AppPoolName
 
-#Remove Binding
-Get-WebBinding -Name $SiteName | Remove-WebBinding
 #Delete the site site so we can recreate it later.
 Delete-TrvSite $SiteName
+
+#Delete files
+Delete-TrvContent $SitePath 
 
 ## Begin Release
 Write-Verbose "Starting Release" -Verbose
 
 ##Copy all files
-#CopyFolder (Join-Path $ScriptRootParent /*) $SourceFolder
+Copy-TrvFolder (Join-Path $ScriptRootParent /*) $SitePath
+
+##Copy Roslyn
+Copy-TrvFolder (Join-Path $RoslynPath /*) (Join-Path $SitePath /bin/roslyn)
+
 
 #Create Application Pool
 Create-TrvApplicationPool $AppPoolName
 
 #Create the site
-Create-TrvSite $SiteName $SitePath $AppPoolName
-#Create an application under the Site.
-Create-TrvApplication $SiteName $ApplicationName $ApplicationPath $AppPoolName
-# Create a virtual directory under the Site
-Create-TrvVirtualDirectory $SiteName '' $VirtualDirectoryName1 $VirtualDirecotryPath1 $AppPoolName
-# Create a virtual directory under the Application
-Create-TrvVirtualDirectory $SiteName $ApplicationName $VirtualDirectoryName1 $VirtualDirecotryPath1 $AppPoolName
-#Add Binding
-New-WebBinding $SiteName
-
+Create-TrvSite $SiteName $SitePath $AppPoolName $PortNr
 
 #Release Done
 Write-Verbose "Release Done" -Verbose

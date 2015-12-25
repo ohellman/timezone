@@ -14,6 +14,13 @@
 #$UseHTTPS             # Force HTTPS
 #$SkipCaCheck          # Client validates that the server certificate is signed by a trusted certificate authority 
 
+# I'm setting this values for demo purpose, will be set from RM client in a real environment 
+# Remove or comment all the demo parameters if you want to run this file in RM
+$SiteName = "RM Demo Dev"
+$SitePath = "D:\Projekt\RMDemoDev"
+$AppPoolName = "RMDemoAppPoolDev"
+$PortNr = "8084"
+
 # Run the example file with parameters from RM
 $folder = Split-Path -Parent $MyInvocation.MyCommand.Definition
 & $folder\TrvIISReleaseExample.ps1 -SiteName $SiteName -SitePath $SitePath -AppPoolName $AppPoolName -PortNr $PortNr
