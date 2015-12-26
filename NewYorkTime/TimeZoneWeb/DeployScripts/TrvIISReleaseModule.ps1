@@ -132,3 +132,33 @@ function Copy-TrvFolder($source, $target)
         Write-Verbose "Failed to move files, '$source' not found!" -Verbose
     }
 }
+# Safely stop site
+function Stop-TrvSite($SiteName)
+{
+    $SiteNameFull = "IIS:\Sites\$SiteName" 
+	if(Test-Path $SiteNameFull)
+	{
+        Write-Verbose "Stopping '$SiteNameFull'" -Verbose
+		Stop-WebSite $SiteName	
+	}
+	else
+	{
+		Write-Verbose "Cannot stop site '$SiteNameFull', it does not exist" -Verbose
+	}
+
+}
+#Safely start site
+function Start-TrvSite($SiteName)
+{
+    $SiteNameFull = "IIS:\Sites\$SiteName" 
+	if(Test-Path $SiteNameFull)
+	{
+        Write-Verbose "Starting '$SiteNameFull'" -Verbose
+		Start-WebSite $SiteName	
+	}
+	else
+	{
+		Write-Verbose "Cannot start site '$SiteNameFull', it does not exist" -Verbose
+	}
+
+}

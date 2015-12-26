@@ -15,7 +15,10 @@ $ScriptRootParent = (Get-Item $folder).parent.FullName
 
 $RoslynPath = Join-Path (Get-Item $ScriptRootParent).parent.parent.FullName /Roslyn
 # Begin PreRelease
-Write-Verbose "Starting PreRelease" -Verbose
+Write-Verbose "Starting UnInstall" -Verbose
+
+# Stop Site
+Stop-TrvSite $SiteName
 
 #Delete The AppPool
 Delete-TrvApplicationPool $AppPoolName

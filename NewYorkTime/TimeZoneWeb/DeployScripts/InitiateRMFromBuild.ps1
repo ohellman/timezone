@@ -67,7 +67,9 @@ $uri = "$releaseManagementService/OrchestratorService/InitiateRelease?releaseTem
 $result = Invoke-RestMethod -Uri $uri -Method Post -UseDefaultCredentials
  
 if ($result.ErrorMessage) {
-    throw $result.ErrorMessage
+    #throw $result.ErrorMessage
+	Write-Verbose $result.ErrorMessage -Verbose
+	Write-Verbose $uri -Verbose
 }
  
 return $result
