@@ -36,6 +36,11 @@ summary {
   display: block;
 }
 
+.navbar-inverse {
+  background-color: blue;
+  border-color: #080808;
+}
+
 audio,
 canvas,
 video {
@@ -4498,11 +4503,6 @@ textarea.input-group-sm > .input-group-btn > .btn {
 
 .navbar-default .navbar-link:hover {
   color: #333333;
-}
-
-.navbar-inverse {
-  background-color: blue;
-  border-color: #080808;
 }
 
 .navbar-inverse .navbar-brand {
