@@ -2,7 +2,7 @@
 #http://www.iis.net/learn/manage/powershell/powershell-snap-in-creating-web-sites-web-applications-virtual-directories-and-application-pools
 
 #Import IIS Module, Requires Admin Rights
-Import-Module "WebAdministration"
+Import-Module "WebAdministration"  -DisableNameChecking MODULENAME
 
 #Remove a site under \Sites\
 function Delete-TrvSite($SiteName)
